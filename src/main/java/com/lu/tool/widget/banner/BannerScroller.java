@@ -7,7 +7,7 @@ import android.widget.Scroller;
  * 用于控制滚动时间的Scroller
  */
 public class BannerScroller extends Scroller {
-    private int mScrollTime = Constants.DEFAULT_BANNER_SCROLL_TIME;
+    private int mScrollTime = BannerConstants.DEFAULT_BANNER_SCROLL_TIME;
 
     public BannerScroller(Context context) {
         super(context);

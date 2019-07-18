@@ -33,7 +33,9 @@ public class BannerAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return mData == null ? 0 : mData.size() * CYCLE;
+        if (mData == null || mData.size() == 0) return 0;
+        if (mData.size() == 1) return 1;
+        return mData.size() * CYCLE;
     }
 
     @Override
@@ -50,6 +52,7 @@ public class BannerAdapter extends PagerAdapter {
             itemView = createBanner(mContext);
             mItemViews.put(realPosition, itemView);
         }
+
         ImageView imageView = (ImageView) itemView.getChildAt(0);
         mBannerCreator.showBanner(mContext, imageView, mData.get(realPosition));
         container.addView(itemView);

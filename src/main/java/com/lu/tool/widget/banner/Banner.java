@@ -2,6 +2,7 @@ package com.lu.tool.widget.banner;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
@@ -16,7 +17,10 @@ import android.widget.FrameLayout;
 import com.lu.tool.widget.banner.indicator.DotIndicator;
 import com.lu.tool.widget.banner.indicator.IIndicator;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import lu.basetool.R;
@@ -25,37 +29,63 @@ import lu.basetool.R;
 /**
  * author: luqihua
  * date:2018/7/13
- * description: 轮播组件
+ * description:
  **/
 public class Banner extends FrameLayout implements ViewPager.OnPageChangeListener {
     private Context mContext;
     //轮播的viewpager
     private ViewPager mBannerPager;
+    //轮播页面创造器
+    private IBannerCreator mBannerCreator;
     //指标相关view
     private IIndicator mIndicator;
     private LayoutParams mIndicatorLayoutParams;
     //轮播控制参数
-    private int mInterval = Constants.DEFAULT_BANNER_INTERVAL;
-    private int mScrollTime = Constants.DEFAULT_BANNER_SCROLL_TIME;
-    private int mIndicatorMargin = Constants.DEFAULT_INDICATOR_MARGIN;
+    private int mInterval = BannerConstants.DEFAULT_BANNER_INTERVAL;
+    private int mScrollTime = BannerConstants.DEFAULT_BANNER_SCROLL_TIME;
+    private int mIndicatorMargin = BannerConstants.DEFAULT_INDICATOR_MARGIN;
     private ViewPager.PageTransformer mTransformer;
 
-    private List<?> mData;
-    private BannerAdapter mBannerAdapter;
-    private IBannerCreator mBannerCreator;
+    private List<Object> mData = new ArrayList<>();
+
     private IBannerClickListener mBannerClickListener;
+    private boolean isAutoScroll = true;
+
+
+    private Handler mIntervalHandler = new Handler();
+
+    private IntervalTask mTask;
+
     //定时任务
-    private Runnable mTask = new Runnable() {
+    private static class IntervalTask implements Runnable {
+        private WeakReference<Banner> weakReference;
+
+        public IntervalTask(Banner banner) {
+            this.weakReference = new WeakReference<>(banner);
+        }
+
         @Override
         public void run() {
-            mBannerPager.setCurrentItem(mBannerPager.getCurrentItem() + 1);
-            postDelayed(this, mInterval);
+            if (weakReference.get() == null) return;
+            ViewPager bannerPager = weakReference.get().mBannerPager;
+            Handler handler = weakReference.get().mIntervalHandler;
+            int time = weakReference.get().mInterval;
+            bannerPager.setCurrentItem(bannerPager.getCurrentItem() + 1);
+            handler.postDelayed(this, time);
         }
-    };
+    }
+
+    ;
 
 
-    public Banner(@NonNull Context context) {
-        this(context, null);
+    public Banner(@NonNull Context context, IBannerCreator creator) {
+        super(context);
+        this.mContext = context;
+        LayoutInflater.from(context).inflate(R.layout.wiget_banner, this);
+        mBannerCreator = creator;
+        initView();
+        initPager();
+        initIndicator();
     }
 
     public Banner(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -98,6 +128,7 @@ public class Banner extends FrameLayout implements ViewPager.OnPageChangeListene
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+        mTask = new IntervalTask(this);
     }
 
     private void initIndicator() {
@@ -159,37 +190,24 @@ public class Banner extends FrameLayout implements ViewPager.OnPageChangeListene
         mIndicator.onPageScrollStateChanged(position);
     }
 
-
     /*===========================对外开放方法============================*/
 
     /**
      * 开启轮播
      */
     public void start() {
-        if (mData == null || mData.size() == 0) return;
+        if (!isAutoScroll || mData == null || mData.size() == 1) return;
         stop();
-        postDelayed(mTask, mInterval);
+        mIntervalHandler.postDelayed(mTask, mInterval);
     }
 
     /**
      * 停止轮播
      */
     public void stop() {
-        removeCallbacks(mTask);
+        mIntervalHandler.removeCallbacks(mTask);
     }
 
-    /**
-     * 设置控制指示器
-     */
-    public void setIndicator(IIndicator indicator) {
-        if (this.mIndicator != null) {
-            removeView((View) mIndicator);
-            mIndicator = null;
-        }
-        this.mIndicator = indicator;
-        this.mIndicator.setLayoutParams(mIndicatorLayoutParams);
-        addView((View) this.mIndicator);
-    }
 
     /**
      * 设置控制轮播的参数
@@ -200,8 +218,23 @@ public class Banner extends FrameLayout implements ViewPager.OnPageChangeListene
         this.mScrollTime = config.getScrollTime();
         //正确的间隔时间应该是要加上轮播切换的时间的，这样才会精确
         this.mInterval = config.getInterval() + mScrollTime;
+        //切换的动画
         this.mTransformer = config.getBannerTransformer();
+        //是否自动轮播
+        this.isAutoScroll = config.isAutoScroll();
+        //指示器的布局样式
         this.mIndicatorLayoutParams.gravity = config.getIndicatorGravity() | Gravity.BOTTOM;
+        //设置指示器
+        if (config.getIndicator() != null) {
+            if (this.mIndicator != null) {
+                removeView((View) mIndicator);
+                mIndicator = null;
+            }
+            this.mIndicator = config.getIndicator();
+            this.mIndicator.setLayoutParams(mIndicatorLayoutParams);
+            addView((View) this.mIndicator);
+        }
+
         initPager();
     }
 
@@ -210,14 +243,17 @@ public class Banner extends FrameLayout implements ViewPager.OnPageChangeListene
      *
      * @param data
      */
-    public void setData(List<?> data) {
+    public void setData(@NonNull Collection<?> data) {
         stop();
         mBannerPager.removeAllViews();
-        this.mData = data;
-        mBannerAdapter = new BannerAdapter(mContext, mBannerCreator, mData);
-        mBannerPager.setAdapter(mBannerAdapter);
-        mBannerPager.setCurrentItem(mData.size() * BannerAdapter.CYCLE / 2);
-        this.mIndicator.initIndicator(mData.size(), 0);
+        this.mData.clear();
+        this.mData.addAll(data);
+        mBannerPager.setAdapter(new BannerAdapter(mContext, mBannerCreator, mData));
+        if (this.mData.size() > 1) {
+            mBannerPager.setCurrentItem(mData.size() * BannerAdapter.CYCLE / 2);
+        }
+        if (this.mIndicator != null)
+            this.mIndicator.initIndicator(mData.size(), 0);
         start();
     }
 
