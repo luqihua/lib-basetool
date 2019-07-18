@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ButtonTextView">
+        <attr name="pressTxtColor" format="color" />
+        <attr name="pressBgc" format="color" />
+        <attr name="stroke" format="dimension" />
+        <attr name="corner" format="dimension|fraction" />
+    </declare-styleable>
+
+    <!--输入项布局-->
+    <declare-styleable name="InputView">
+        <attr name="input_title" format="string|reference" />
+        <attr name="input_hint" format="string|reference" />
+        <attr name="required" format="boolean" />
+        <attr name="editable" format="boolean" />
+        <attr name="last" format="boolean" />
+        <attr name="left_color" format="color|reference" />
+        <attr name="right_color" format="color|reference" />
+        <attr name="left_text_size" format="dimension|reference" />
+        <attr name="right_text_size" format="dimension|reference"/>
+    </declare-styleable>
+
+    <!--圆形ImageView属性-->
+    <declare-styleable name="CircleImageView">
+        <attr name="civ_border_width" format="dimension" />
+        <attr name="civ_border_color" format="color" />
+        <attr name="civ_border_overlay" format="boolean" />
+        <attr name="civ_fill_color" format="color" />
+    </declare-styleable>
+
+    <!--通用头部-->
+    <declare-styleable name="BaseTitleBar">
+        <!--中间文字，大小，颜色-->
+        <attr name="centerText" format="string|reference" />
+        <attr name="titleColor" format="color|reference" />
+        <attr name="titleSize" format="integer" />
+        <!--右侧图标，文字，大小，颜色-->
+        <attr name="rightIcon" format="reference" />
+        <attr name="rightText" format="string|reference" />
+        <attr name="rightTextColor" format="color|reference" />
+        <attr name="rightTextSize" format="integer" />
+        <attr name="bottom_line" format="boolean" />
+    </declare-styleable>
+
+    <!--列表页空视图-->
+    <declare-styleable name="EmptyView">
+        <attr name="refreshEnable" format="boolean" />
+        <attr name="emptyText" format="string|reference" />
+        <attr name="emptyIcon" format="reference" />
+        <attr name="emptyTextColor" format="color|reference" />
+        <attr name="emptyTextSize" format="integer" />
+    </declare-styleable>
+
+
+    <!--banner-->
+    <declare-styleable name="Banner">
+        <attr name="interval" format="integer" />
+        <attr name="scroll_time" format="integer" />
+        <attr name="transformer" format="string"/>
+        <attr name="indicator_style" format="enum">
+            <enum name="number" value="1"/>
+            <enum name="dot" value="2"/>
+        </attr>
+        <attr name="indicator_select_color" format="color" />
+        <attr name="indicator_normal_color" format="color" />
+        <attr name="banner_creator" format="string" />
+    </declare-styleable>
+
+
+    <!-- 倒计时 -->
+    <declare-styleable name="CountdownView">
+        <attr name="Text_Size" format="dimension" />
+        <attr name="timeBgCorner" format="dimension" />
+        <attr name="timeBgColor" format="color" />
+        <attr name="timeTextColor" format="color" />
+
+        <attr name="suffixMargin" format="dimension" />
+        <attr name="suffixTextColor" format="color" />
+
+        <attr name="showLevel" format="enum">
+            <enum name="second" value="0" />
+            <enum name="minute" value="1" />
+            <enum name="hour" value="2" />
+            <enum name="day" value="3" />
+        </attr>
+
+        <attr name="suffixType">
+            <enum name="COLON" value="0x011" />
+            <enum name="CHAR" value="0x012" />
+        </attr>
+    </declare-styleable>
+</resources>

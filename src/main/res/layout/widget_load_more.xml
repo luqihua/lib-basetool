@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/srl_refresh_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.lu.tool.widget.LoadMoreRecyclerView
+        android:id="@+id/rv_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbarThumbVertical="@drawable/scroll_bar"
+        android:scrollbars="vertical"
+        android:visibility="gone" />
+</merge>

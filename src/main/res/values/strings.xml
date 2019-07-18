@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">BaseTool</string>
+
+
+    <!--behavior-->
+    <string name="down_refresh_behavior">com.lu.tool.widget.behavior.DownRefreshBehavior</string>
+
+</resources>
