@@ -17,7 +17,7 @@
         <attr name="left_color" format="color|reference" />
         <attr name="right_color" format="color|reference" />
         <attr name="left_text_size" format="dimension|reference" />
-        <attr name="right_text_size" format="dimension|reference"/>
+        <attr name="right_text_size" format="dimension|reference" />
     </declare-styleable>
 
     <!--圆形ImageView属性-->
@@ -56,10 +56,10 @@
     <declare-styleable name="Banner">
         <attr name="interval" format="integer" />
         <attr name="scroll_time" format="integer" />
-        <attr name="transformer" format="string"/>
+        <attr name="transformer" format="string" />
         <attr name="indicator_style" format="enum">
-            <enum name="number" value="1"/>
-            <enum name="dot" value="2"/>
+            <enum name="number" value="1" />
+            <enum name="dot" value="2" />
         </attr>
         <attr name="indicator_select_color" format="color" />
         <attr name="indicator_normal_color" format="color" />
@@ -88,5 +88,18 @@
             <enum name="COLON" value="0x011" />
             <enum name="CHAR" value="0x012" />
         </attr>
+    </declare-styleable>
+
+    <!--跑马灯控件RollTextView 属性-->
+    <declare-styleable name="RollTextView">
+        <attr name="roll_text" format="string|reference" />
+        <attr name="text_color" format="color|reference" />
+        <attr name="text_size" format="dimension|reference" />
+        <attr name="roll_orientation" format="enum">
+            <enum name="horizontal" value="1" />
+            <enum name="vertical" value="2" />
+        </attr>
+        <attr name="roll_speed" format="float" />
+        <attr name="roll_content_space" format="dimension" />
     </declare-styleable>
 </resources>
