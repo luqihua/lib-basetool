@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.lu.tool.util.DeviceUtil;
+import com.lu.tool.util.DimensionTools;
 
 import lu.basetool.R;
 
@@ -118,7 +118,7 @@ public class EmptyView extends FrameLayout implements View.OnClickListener {
         textView.setTextSize(mEmptyTextSize);
         textView.setTextColor(mEmptyTextColor);
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) (DeviceUtil.getScreenWidth() * 0.6), -2);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) (DimensionTools.getScreenWidth() * 0.6), -2);
         params.topMargin = 20;
         textView.setLayoutParams(params);
         return textView;

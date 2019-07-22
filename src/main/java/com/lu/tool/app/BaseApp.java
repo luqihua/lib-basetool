@@ -17,10 +17,11 @@ import com.lu.tool.util.ToastUtil;
  * 基础Application,一些初始化操作放在这里执行
  *
  * @author lqh
+ * @hide
  */
 public class BaseApp extends Application {
 
-    public static Application sInstance;
+    protected static Application sInstance;
     /*---当前版本名称------*/
     public static String sVersionName;
     /*---当前版本号-------*/
@@ -42,6 +43,15 @@ public class BaseApp extends Application {
             ResourceUtil.init(this);
             ActivityStackUtil.getInstance().init(this);
         }
+    }
+
+    public static <T> T getService(String name) {
+        Object o = sInstance.getSystemService(name);
+        return (T) o;
+    }
+
+    public static Application getApplication() {
+        return sInstance;
     }
 
     /**

@@ -15,7 +15,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.lu.tool.util.DeviceUtil;
+import com.lu.tool.util.DimensionTools;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +105,7 @@ public class InputItemView extends LinearLayout {
 
     private void initView() {
         setBackgroundColor(Color.WHITE);
-        int padding = DeviceUtil.dp2px(10);
+        int padding = DimensionTools.dp2px(10);
         setPadding(padding, padding, padding, padding);
         mTitleView = createTitleView(mTitle);
         addView(mTitleView);
@@ -120,7 +120,7 @@ public class InputItemView extends LinearLayout {
         TextView textView = new TextView(mContext);
         textView.setTextSize(16);
         textView.setTextColor(leftColor);
-        textView.setCompoundDrawablePadding(DeviceUtil.dp2px(5));
+        textView.setCompoundDrawablePadding(DimensionTools.dp2px(5));
         textView.setText(title);
 
         if (isRequired) {
@@ -143,7 +143,7 @@ public class InputItemView extends LinearLayout {
         } else {
             textView = new TextView(mContext);
             if (clickable) {
-                textView.setCompoundDrawablePadding(DeviceUtil.dp2px(5));
+                textView.setCompoundDrawablePadding(DimensionTools.dp2px(5));
                 textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.arrow_right, 0);
             }
         }
@@ -163,7 +163,7 @@ public class InputItemView extends LinearLayout {
         textView.setHint(hint);
 
         LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.rightMargin = DeviceUtil.dp2px(5);
+        params.rightMargin = DimensionTools.dp2px(5);
         params.weight = 1;
 
         textView.setLayoutParams(params);

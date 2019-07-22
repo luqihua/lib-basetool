@@ -17,7 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.lu.tool.util.DeviceUtil;
+import com.lu.tool.util.DimensionTools;
 import com.lu.tool.widget.drawable.BackDrawable;
 
 import lu.basetool.R;
@@ -198,7 +198,7 @@ public class BaseTitleBar extends FrameLayout {
         LayoutParams params;
         if (TextUtils.isEmpty(mRightText)) {
             params = new LayoutParams(mHeight, mHeight);
-            int padding = DeviceUtil.dp2px(5);
+            int padding = DimensionTools.dp2px(5);
             textView.setPadding(padding, 0, padding, 0);
         } else {
             params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, mHeight);

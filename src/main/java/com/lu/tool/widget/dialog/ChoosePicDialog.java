@@ -25,7 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lu.tool.util.DeviceUtil;
+import com.lu.tool.util.DimensionTools;
 import com.lu.tool.util.ResourceUtil;
 
 import java.io.File;
@@ -79,7 +79,7 @@ public class ChoosePicDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams((int) (DeviceUtil.getScreenWidth() * 0.5), ViewGroup.LayoutParams.WRAP_CONTENT);
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams((int) (DimensionTools.getScreenWidth() * 0.5), ViewGroup.LayoutParams.WRAP_CONTENT);
         setContentView(createContentView(), params);
         initListener();
     }

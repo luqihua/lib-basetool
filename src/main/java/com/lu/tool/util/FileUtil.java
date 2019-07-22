@@ -25,13 +25,21 @@ public class FileUtil {
     private static String sAppCacheDir = "";
     private static boolean hasInitialize = false;
 
+    /**
+     * 初始化app外部存储跟目录，以包名为文件夹名(这一步不创建文件)
+     *
+     * @param context
+     */
     public static void init(Context context) {
         if (!hasInitialize) {
+            if (context == null) {
+                throw new RuntimeException("FileUtil: context can't be null");
+            }
             hasInitialize = true;
-            String rootDir = context == null ? "tmp" : context.getPackageName();
+            String rootDir = context.getPackageName();
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                sAppCacheDir = Environment.getExternalStorageDirectory()
-                        .getAbsolutePath() + "/" + rootDir;
+                sAppCacheDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + "/" + rootDir;
             } else {
                 sAppCacheDir = context.getCacheDir().getAbsolutePath() + "/" + rootDir;
             }
@@ -39,9 +47,59 @@ public class FileUtil {
     }
 
     /**
+     * 获取已存在的文件
+     *
+     * @param dir
+     * @param filename
+     * @return
+     */
+    public static File getExistFile(String dir, String filename) {
+        if (!hasInitialize) {
+            throw new RuntimeException("FileUtil : doest has initialize ");
+        }
+
+        String dirPath = checkPath(dir);
+        File dirFile = new File(sAppCacheDir + dirPath);
+        if (!dirFile.exists()) {
+            return null;
+        }
+        File file = new File(dirFile, filename);
+        if (!file.exists()) {
+            return null;
+        }
+        return file;
+    }
+
+
+    /**
+     * 创建一个缓存文件夹
+     *
+     * @param cacheDir 路径
+     * @return
+     */
+    public static File newCacheDir(String cacheDir) {
+        if (!hasInitialize) {
+            throw new RuntimeException("FileUtil : doest has initialize ");
+        }
+
+        String dirPath = checkPath(cacheDir);
+
+        File file = new File(sAppCacheDir + dirPath);
+
+        if (!file.exists()) {
+            if (file.mkdirs()) {
+                return file;
+            }
+        } else {
+            return file;
+        }
+        return null;
+    }
+
+    /**
      * 创建一个普通缓存文件
      *
-     * @param paths 路径,数组最后一个是文件名
+     * @param paths xxxx/xxxx/xxxxx/xxxx.txt
      * @return
      */
     public static File newCacheFile(String... paths) {
@@ -115,17 +173,21 @@ public class FileUtil {
      * @param file
      * @param deleteThisPath 是否删除当前目录
      */
-    public static void deleteFile(File file, boolean deleteThisPath) {
-        if (!file.exists()) return;
-        if (file.isFile()) {
-            file.delete();
-            return;
+    public static boolean deleteFile(File file, boolean deleteThisPath) {
+
+        if (!file.exists()) {
+            return true;
         }
-        for (File childFile : file.listFiles()) {
-            deleteFile(childFile, true);
+
+        boolean result = true;
+        if (file.isDirectory()) {
+            for (File childFile : file.listFiles()) {
+                result &= deleteFile(childFile, true);
+            }
         }
         if (deleteThisPath)
-            file.delete();
+            result &= file.delete();
+        return result;
     }
 
     /**
@@ -139,7 +201,7 @@ public class FileUtil {
             size = size + file.length();
         } else {
             for (File childFile : file.listFiles()) {
-                size = size + getFileSize(childFile);
+                size += getFileSize(childFile);
             }
         }
         return size;
@@ -182,7 +244,6 @@ public class FileUtil {
         return result4.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()
                 + "TB";
     }
-
 
 
     /**
@@ -242,4 +303,20 @@ public class FileUtil {
         return null;
     }
 
+
+    /**
+     * 检查文件路径
+     * @param originalPath
+     * @return
+     */
+    private static String checkPath(String originalPath) {
+        if (originalPath == null) return null;
+        originalPath = originalPath
+                .trim()
+                .replaceAll("//", "/");
+        if (!originalPath.startsWith("/")) {
+            originalPath = "/" + originalPath;
+        }
+        return originalPath;
+    }
 }

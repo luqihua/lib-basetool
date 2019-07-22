@@ -18,36 +18,33 @@ public class SecurityUtil {
      * @return
      */
     public static String getMD5(String str) {
-
-        MessageDigest md5 = null;
-        StringBuilder builder = null;
         try {
-            builder= new StringBuilder();
-            md5 = MessageDigest.getInstance("md5");
+            MessageDigest md5 = MessageDigest.getInstance("md5");
             byte[] cipherData = md5.digest(str.getBytes());
-            for (byte cipher : cipherData) {
-                String toHexStr = Integer.toHexString(cipher & 0xff);
-                if (toHexStr.length() == 1) {
-                    builder.append("0");
-                }
-                builder.append(toHexStr);
-            }
+            return byte2hex(cipherData);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+        return null;
+    }
 
+    private static String byte2hex(byte[] datas) {
+        StringBuilder builder = new StringBuilder();
+        for (byte cipher : datas) {
+            String toHexStr = Integer.toHexString(cipher & 0xff);
+            if (toHexStr.length() == 1) {
+                builder.append("0");
+            }
+            builder.append(toHexStr);
+        }
         return builder.toString();
     }
 
     public static String formatParams(Map<String, String> params) {
-        if(params==null) {
+        if (params == null || params.size() == 0) {
             return "";
         }
-
-        Map<String,String> tmpMap = new TreeMap<>();
-        tmpMap.putAll(params);
-
-        String result;
+        Map<String, String> tmpMap = new TreeMap<>(params);
 
         StringBuilder stringBuilder = new StringBuilder();
         for (Map.Entry<String, String> entry : tmpMap.entrySet()) {
@@ -57,9 +54,7 @@ public class SecurityUtil {
             stringBuilder.append("&");
         }
 
-        result = stringBuilder.toString();
-        result = result.substring(0,result.lastIndexOf("&"));
-        return result;
+        return stringBuilder.substring(0, stringBuilder.lastIndexOf("&"));
     }
 
 
