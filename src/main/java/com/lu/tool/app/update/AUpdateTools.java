@@ -142,7 +142,7 @@ public abstract class AUpdateTools {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Uri apkUri = FileProvider.getUriForFile(mActivity
-                    , String.format(FILE_PROVIDER, BaseApp.sInstance.getPackageName())
+                    , String.format(FILE_PROVIDER, BaseApp.getApplication().getPackageName())
                     , apkFile);
             // 给目标应用一个临时授权
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

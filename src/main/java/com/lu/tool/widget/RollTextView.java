@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
-import com.lu.tool.util.DeviceUtil;
+import com.lu.tool.util.DimensionTools;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
     private static final int DIMEN_DEFAULT_CONTENT_SPACE = 100;
     private static final int DIMEN_DEFAULT_TEXT_SIZE = 16;
     private static final int DIMEN_DEFAULT_TEXT_COLOR = Color.WHITE;
-    private static final float DIMEN_DEFAULT_ROLL_SPEED = 0.2f;
+    private static final float DIMEN_DEFAULT_ROLL_SPEED = 0.15f;
     //滚动方向
     public static final int ORIENTATION_HORIZONTAL = 1;
     public static final int ORIENTATION_VERTICAL = 2;
@@ -47,20 +47,21 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
 
     private int mTextSize = 14;
     private int mTextColor = Color.WHITE;
-//    private String mText = "hello worldjasdjaljskjlajdjalkjalksjdkjalsjlajsljdalsjkajdad";
-    private String mText = "hello world how are you";
+        private String mText = "hello worldjasdjaljskjlajdjalkjalksjdkjalsjlajsljdalsjkajdad";
+//    private String mText = "hello world how are you";
 
     //需要绘制的次数   如果文本长度大于控件宽度  则为1  若小于 则需要计算
     private List<String> mTextArray = new ArrayList<>();
-    private int mDrawCount = 1;
 
     private int mWidth, mHeight;
-    //单个文本总高度  以及控件当前显示的(显示一小部分的也当成完整文本计算)总的文本高度
-    private int mTextHeight, mTotalTextHeight;
+    //单个文本总高度
+    private int mTextHeight;
     //单个文本宽度   总宽度
-    private int mTextWidth, mTotalTextWidth;
-    //绘制文本的基线 x y  值
+    private int mTextWidth;
+    //绘制文本的基线 x y  值 滚动过程中改变的值
     private int mBaseLineX = 0, mBaseLineY;
+    //初始的绘制x，y值  不改变
+    private int mStartX, mStartY;
     //文本行间隔
     private int mTextLineSpace;
 
@@ -85,7 +86,6 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
 
     public RollTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setBackgroundColor(Color.BLACK);
         TypedArray arr = context.obtainStyledAttributes(attrs, R.styleable.RollTextView);
         if (arr != null) {
             mTextSize = arr.getDimensionPixelSize(R.styleable.RollTextView_text_size, DIMEN_DEFAULT_TEXT_SIZE);
@@ -122,7 +122,7 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
      * 初始化画笔
      */
     private void initPaint() {
-        mPaint.setTextSize(DeviceUtil.sp2px(mTextSize));
+        mPaint.setTextSize(DimensionTools.sp2px(mTextSize));
         mPaint.setColor(mTextColor);
     }
 
@@ -131,11 +131,9 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
      */
     private void initHorizontalValue() {
         Paint.FontMetrics metrics = mPaint.getFontMetrics();
-        mBaseLineX = 0;
-        mBaseLineY = (int) (mHeight / 2 - (metrics.ascent + metrics.descent) / 2);
+        mBaseLineX = mStartX = mWidth;
+        mBaseLineY = mStartY = (int) (mHeight / 2 - (metrics.ascent + metrics.descent) / 2);
         mTextWidth = (int) mPaint.measureText(mText);
-        mDrawCount = mWidth / mTextWidth + 1;
-        mTotalTextWidth = (mTextWidth + mContentSpace) * mDrawCount;
     }
 
     /**
@@ -153,13 +151,11 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
             start += count;
         } while (start < chars.length);
 
+        mBaseLineX = mStartX = 0;
         //文本总的高度
         mTextHeight = (mTextLineSpace) * mTextArray.size();
-        mDrawCount = mHeight / mTextHeight + 1;
-        mTotalTextHeight = mDrawCount * (mTextHeight + mContentSpace);
         //第一行文本的baseLine
-        mBaseLineX = 0;
-        mBaseLineY = (int) -metrics.top;
+        mBaseLineY = mStartY = (int) (mHeight -metrics.top);
     }
 
     /**
@@ -167,16 +163,18 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
      */
     private void initAnimator() {
         stopRoll();
+        int startValue = 0;
         int endValue = 0;
         if (mOrientation == ORIENTATION_HORIZONTAL) {
-            endValue = mTotalTextWidth;
+            endValue = mBaseLineX + mTextWidth;
         } else if (mOrientation == ORIENTATION_VERTICAL) {
-            endValue = mTotalTextHeight;
+            endValue = mBaseLineY + mTextHeight;
         }
 
         if (TextUtils.isEmpty(mText)) return;
-        mRollAnimator = ValueAnimator.ofInt(0, endValue);
-        mRollAnimator.setDuration((long) (endValue / mSpeed));
+        mRollAnimator = ValueAnimator.ofInt(startValue, endValue);
+
+        mRollAnimator.setDuration((long) (Math.abs(endValue - startValue) / mSpeed));
         mRollAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mRollAnimator.setRepeatMode(ValueAnimator.RESTART);
         //线性滚动
@@ -194,9 +192,9 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
         }
         int value = (int) animation.getAnimatedValue();
         if (mOrientation == ORIENTATION_HORIZONTAL) {
-            mBaseLineX = -value;
+            mBaseLineX = mStartX - value;
         } else if (mOrientation == ORIENTATION_VERTICAL) {
-            mBaseLineY = -value;
+            mBaseLineY = mStartY - value;
         }
         postInvalidate();
     }
@@ -205,47 +203,10 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (mOrientation == ORIENTATION_HORIZONTAL) {
-            drawTextHorizontal(canvas);
+            canvas.drawText(mText, mBaseLineX, mBaseLineY, mPaint);
         } else if (mOrientation == ORIENTATION_VERTICAL) {
-            drawTextVertical(canvas);
-        }
-
-        canvas.save();
-        if (mOrientation == ORIENTATION_HORIZONTAL) {
-            canvas.translate(-mTotalTextWidth, 0);
-            drawTextHorizontal(canvas);
-        } else if (mOrientation == ORIENTATION_VERTICAL) {
-            canvas.translate(0, -mTotalTextHeight);
-            drawTextVertical(canvas);
-        }
-        canvas.restore();
-
-        canvas.save();
-        if (mOrientation == ORIENTATION_HORIZONTAL) {
-            canvas.translate(mTotalTextWidth, 0);
-            drawTextHorizontal(canvas);
-        } else if (mOrientation == ORIENTATION_VERTICAL) {
-            canvas.translate(0, mTotalTextHeight);
-            drawTextVertical(canvas);
-        }
-        canvas.restore();
-    }
-
-    private void drawTextHorizontal(Canvas canvas) {
-        for (int i = 0; i < mDrawCount; i++) {
-            int offset = i * (mTextWidth + mContentSpace);
-            canvas.drawText(mText, mBaseLineX + offset, mBaseLineY, mPaint);
-        }
-    }
-
-
-    private void drawTextVertical(Canvas canvas) {
-        //第一层循环是文本绘制的次数
-        for (int i = 0; i < mDrawCount; i++) {
-            int offset = i * (mTextHeight + mContentSpace);
-            //第二层循环是逐行把文本绘制出来
             for (int j = 0; j < mTextArray.size(); j++) {
-                canvas.drawText(mTextArray.get(j), mBaseLineX, offset + mBaseLineY + j * mTextLineSpace, mPaint);
+                canvas.drawText(mTextArray.get(j), mBaseLineX, mBaseLineY + j * mTextLineSpace, mPaint);
             }
         }
     }

@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.lu.tool.util.DeviceUtil;
+import com.lu.tool.util.DimensionTools;
 
 /**
  * radioGroup可获取当前选中的子view position
@@ -75,7 +75,7 @@ public class CheckRadioGroup extends RadioGroup {
         radioButton.setTextColor(DEFAULT_COLOR);
         LayoutParams params = new LayoutParams(0, LayoutParams.WRAP_CONTENT);
         if (index > 0)
-            params.leftMargin = DeviceUtil.dp2px(5);
+            params.leftMargin = DimensionTools.dp2px(5);
         params.weight = 1;
         radioButton.setLayoutParams(params);
         return radioButton;

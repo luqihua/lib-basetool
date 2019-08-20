@@ -12,7 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.lu.tool.util.DeviceUtil;
+import com.lu.tool.util.DimensionTools;
 import com.lu.tool.util.ResourceUtil;
 
 import lu.basetool.R;
@@ -76,7 +76,7 @@ public class RadioGroupItemView extends LinearLayout {
         TextView textView = new TextView(mContext);
         textView.setTextColor(ResourceUtil.getColor(R.color.text_color));
         textView.setTextSize(16);
-        textView.setCompoundDrawablePadding(DeviceUtil.dp2px(5));
+        textView.setCompoundDrawablePadding(DimensionTools.dp2px(5));
         textView.setText(title);
 
         if (isRequired) {
@@ -90,7 +90,7 @@ public class RadioGroupItemView extends LinearLayout {
         FrameLayout frameLayout = new FrameLayout(mContext);
         LayoutParams params1 = new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
         params1.weight = 1;
-        params.leftMargin = DeviceUtil.dp2px(10);
+        params.leftMargin = DimensionTools.dp2px(10);
         frameLayout.setLayoutParams(params1);
         frameLayout.addView(textView);
 
