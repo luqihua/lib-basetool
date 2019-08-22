@@ -64,7 +64,6 @@ public class NetworkUtil {
      * @return
      */
     public static String getIPAddress() {
-
         if (!isNetworkAvailable()) {
             Log.d("NetworkUtil", "无网络连接");
             return null;
@@ -78,6 +77,7 @@ public class NetworkUtil {
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
                         return inetAddress.getHostAddress();
+
                     }
                 }
             }
@@ -87,7 +87,6 @@ public class NetworkUtil {
 
         return "";
     }
-
 
     /**
      * 获取网络类型
