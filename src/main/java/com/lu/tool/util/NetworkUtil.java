@@ -45,6 +45,8 @@ public class NetworkUtil {
                     bWifi = info.isConnected();
                 } else if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
                     bMobile = info.isConnected();
+                }else {
+                    //其他网络
                 }
             }
             isConnect = bEthernet || bWifi || bMobile;
@@ -62,41 +64,56 @@ public class NetworkUtil {
      * @return
      */
     public static String getIPAddress() {
-        ConnectivityManager manager = BaseApp.getService(Context.CONNECTIVITY_SERVICE);
-        if (manager == null) return "";
 
-        NetworkInfo info = manager.getActiveNetworkInfo();
+        if (!isNetworkAvailable()) {
+            Log.d("NetworkUtil", "无网络连接");
+            return null;
+        }
 
-        if (info != null && info.isConnected()) {
-            if (info.getType() == ConnectivityManager.TYPE_MOBILE
-                    || info.getType() == ConnectivityManager.TYPE_ETHERNET) {//移动网络 或者有线网络
-                try {
-                    Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
-                    while (en.hasMoreElements()) {
-                        Enumeration<InetAddress> enumIpAddr = en.nextElement().getInetAddresses();
-                        while (enumIpAddr.hasMoreElements()) {
-                            InetAddress inetAddress = enumIpAddr.nextElement();
-                            if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
-                                return inetAddress.getHostAddress();
-                            }
-                        }
+        try {
+            Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
+            while (en.hasMoreElements()) {
+                Enumeration<InetAddress> enumIpAddr = en.nextElement().getInetAddresses();
+                while (enumIpAddr.hasMoreElements()) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+                        return inetAddress.getHostAddress();
                     }
-                } catch (SocketException e) {
-                    e.printStackTrace();
-                }
-
-            } else if (info.getType() == ConnectivityManager.TYPE_WIFI) {//当前使用无线网络
-                WifiManager wifiManager = BaseApp.getService(Context.WIFI_SERVICE);
-                if (wifiManager != null) {
-                    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                    int ip = wifiInfo.getIpAddress();
-                    return int2Ip(ip);
                 }
             }
-        } else {
-            //当前无网络连接,请在设置中打开网络
+        } catch (SocketException e) {
+            e.printStackTrace();
         }
+
         return "";
+    }
+
+
+    /**
+     * 获取网络类型
+     * @return
+     */
+    public static int getNetworkType() {
+        ConnectivityManager manager = BaseApp.getService(Context.CONNECTIVITY_SERVICE);
+        if (manager == null) return -1;
+        NetworkInfo info = manager.getActiveNetworkInfo();
+
+        if (info == null || !info.isConnected()) {
+            Log.d("NetworkUtil", "无网络连接");
+            return -1;
+        }
+
+        if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
+            //移动网
+        } else if (info.getType() == ConnectivityManager.TYPE_ETHERNET) {
+            //有线网
+
+        } else if (info.getType() == ConnectivityManager.TYPE_WIFI) {
+            //无线wlan
+        } else {
+            //其他网络
+        }
+        return 1;
     }
 
 
