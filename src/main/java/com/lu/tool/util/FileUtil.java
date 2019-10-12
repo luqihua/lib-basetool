@@ -20,7 +20,6 @@ import java.util.UUID;
 
 public class FileUtil {
     private static final String CACHE_DIR_IMAGE = "cache_dir_image";//缓存图片的文件夹
-    private static final String CACHE_DIR_FILE = "cache_dir_file";//缓存普通文件的文件夹
 
     private static String sAppCacheDir = "";
     private static boolean hasInitialize = false;
@@ -103,9 +102,7 @@ public class FileUtil {
      * @return
      */
     public static File newCacheFile(String... paths) {
-        final StringBuilder dirPath = new StringBuilder(sAppCacheDir)
-                .append("/")
-                .append(CACHE_DIR_FILE);
+        final StringBuilder dirPath = new StringBuilder(sAppCacheDir);
 
         int len = paths.length;
         for (int i = 0; i < len - 1; i++) {
@@ -158,8 +155,7 @@ public class FileUtil {
      * @param paths
      */
     public static void deleteFileCache(String... paths) {
-        final StringBuilder dirPath = new StringBuilder(sAppCacheDir)
-                .append("/").append(CACHE_DIR_FILE);
+        final StringBuilder dirPath = new StringBuilder(sAppCacheDir);
         for (String path : paths) {
             dirPath.append("/").append(path);
         }

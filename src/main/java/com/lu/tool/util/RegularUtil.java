@@ -1,5 +1,6 @@
 package com.lu.tool.util;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -36,6 +37,16 @@ public class RegularUtil {
     public static boolean isEmail(String str) {
         String reg = "^[a-zA-Z0-9]+([a-zA-Z0-9]+[-_.]?)*@([a-zA-Z0-9]+[-.]?)*[a-zA-Z0-9]+\\.[a-zA-Z0-9]{2,5}$";
         return Pattern.compile(reg).matcher(str).matches();
+    }
+
+    /**
+     * 是否是ip
+     * @param address
+     * @return
+     */
+    public static boolean isIPAddress(String address) {
+        String reg = "((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}";
+        return Pattern.compile(reg).matcher(address).matches();
     }
 
     /**

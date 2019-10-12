@@ -1,15 +1,18 @@
 package com.lu.tool.widget;
 
+import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Handler;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
@@ -26,8 +29,9 @@ import lu.basetool.R;
  * date:2019-07-18
  * description: 跑马灯效果
  **/
-public class RollTextView extends View implements ValueAnimator.AnimatorUpdateListener {
-    private static final String TAG = "TestView";
+public class RollTextView extends View implements ValueAnimator.AnimatorUpdateListener
+        , Animator.AnimatorListener {
+    private static final String TAG = "RollTextView";
     private static final int DIMEN_DEFAULT_CONTENT_SPACE = 100;
     private static final int DIMEN_DEFAULT_TEXT_SIZE = 16;
     private static final int DIMEN_DEFAULT_TEXT_COLOR = Color.WHITE;
@@ -35,6 +39,7 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
     //滚动方向
     public static final int ORIENTATION_HORIZONTAL = 1;
     public static final int ORIENTATION_VERTICAL = 2;
+
 
     @IntDef({ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL})
     public @interface orientation {
@@ -47,7 +52,7 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
 
     private int mTextSize = 14;
     private int mTextColor = Color.WHITE;
-        private String mText = "hello worldjasdjaljskjlajdjalkjalksjdkjalsjlajsljdalsjkajdad";
+    private String mText = "hello worldjasdjaljskjlajdjalkjalksjdkjalsjlajsljdalsjkajdad";
 //    private String mText = "hello world how are you";
 
     //需要绘制的次数   如果文本长度大于控件宽度  则为1  若小于 则需要计算
@@ -71,10 +76,24 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
     //========================跑马灯动画相关===================
     //是否在滚动播放
     private boolean isRolling;
+    //滚动重复次数
+    private int count = Integer.MAX_VALUE;
     //滚动速度  px
     private float mSpeed = 0.2f;
     private ValueAnimator mRollAnimator;
     private Interpolator mRollInterpolator = new LinearInterpolator();
+
+    //控制轮播时长
+    private Handler mTimeHandler = new Handler();
+    private Runnable mTimeTask = new Runnable() {
+        @Override
+        public void run() {
+            stopRoll();
+        }
+    };
+    private boolean hasMeasure = false;
+    private boolean startSticky = false;
+
 
     public RollTextView(Context context) {
         this(context, null);
@@ -105,25 +124,22 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
         super.onSizeChanged(w, h, oldw, oldh);
         mWidth = w;
         mHeight = h;
+        Log.d(TAG, "onSizeChanged: " + w + ":" + h);
         init();
+        hasMeasure = true;
+        if (startSticky) {
+            initAnimator();
+        }
     }
 
     private void init() {
-        initPaint();
+        mPaint.setTextSize(DimensionTools.sp2px(mTextSize));
+        mPaint.setColor(mTextColor);
         if (mOrientation == ORIENTATION_HORIZONTAL) {
             initHorizontalValue();
         } else if (mOrientation == ORIENTATION_VERTICAL) {
             initVerticalValue();
         }
-        initAnimator();
-    }
-
-    /**
-     * 初始化画笔
-     */
-    private void initPaint() {
-        mPaint.setTextSize(DimensionTools.sp2px(mTextSize));
-        mPaint.setColor(mTextColor);
     }
 
     /**
@@ -155,7 +171,7 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
         //文本总的高度
         mTextHeight = (mTextLineSpace) * mTextArray.size();
         //第一行文本的baseLine
-        mBaseLineY = mStartY = (int) (mHeight -metrics.top);
+        mBaseLineY = mStartY = (int) (mHeight - metrics.top);
     }
 
     /**
@@ -173,23 +189,20 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
 
         if (TextUtils.isEmpty(mText)) return;
         mRollAnimator = ValueAnimator.ofInt(startValue, endValue);
-
-        mRollAnimator.setDuration((long) (Math.abs(endValue - startValue) / mSpeed));
+        long duration = (long) (Math.abs(endValue - startValue) / mSpeed);
+        mRollAnimator.setDuration(duration);
         mRollAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mRollAnimator.setRepeatMode(ValueAnimator.RESTART);
+        mRollAnimator.addListener(this);
         //线性滚动
         mRollAnimator.setInterpolator(mRollInterpolator);
         mRollAnimator.addUpdateListener(this);
-        isRolling = true;
         mRollAnimator.start();
+        isRolling = true;
     }
 
     @Override
     public void onAnimationUpdate(ValueAnimator animation) {
-        if (!isRolling) {
-            animation.cancel();
-            return;
-        }
         int value = (int) animation.getAnimatedValue();
         if (mOrientation == ORIENTATION_HORIZONTAL) {
             mBaseLineX = mStartX - value;
@@ -198,6 +211,31 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
         }
         postInvalidate();
     }
+
+    @Override
+    public void onAnimationStart(Animator animation) {
+
+    }
+
+    @Override
+    public void onAnimationEnd(Animator animation) {
+
+    }
+
+    @Override
+    public void onAnimationCancel(Animator animation) {
+
+    }
+
+    @Override
+    public void onAnimationRepeat(Animator animation) {
+        count--;
+        if (count <= 0) {
+            stopRoll();
+            count = Integer.MAX_VALUE;
+        }
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -214,23 +252,39 @@ public class RollTextView extends View implements ValueAnimator.AnimatorUpdateLi
     //===============================================================
 
     public void setText(String text) {
+        Log.d(TAG, "setText: ");
+        stopRoll();
         if (!TextUtils.isEmpty(text)) {
             if (this.mText.equals(text)) return;
-            stopRoll();
             this.mText = text;
-            initAnimator();
-        } else {
-            stopRoll();
-        }
-    }
-
-    public void startRoll() {
-        if (!isRolling) {
             init();
         }
     }
 
+    public void startRoll() {
+        stopRoll();
+        if (hasMeasure) {
+            initAnimator();
+        } else {
+            startSticky = true;
+        }
+    }
+
+    public void startRoll(int count) {
+        Log.d(TAG, "startRoll: ");
+        if (count <= 0) return;
+        this.count = count;
+        startRoll();
+    }
+
+
+    public void startRoll(long duration) {
+        startRoll();
+        mTimeHandler.postDelayed(mTimeTask, duration);
+    }
+
     public void stopRoll() {
+        mTimeHandler.removeCallbacks(mTimeTask);
         if (isRolling && mRollAnimator != null) {
             isRolling = false;
             mRollAnimator.cancel();
