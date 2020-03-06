@@ -109,8 +109,9 @@ public class FileUtil {
             dirPath.append("/").append(paths[i]);
         }
         File dir = new File(dirPath.toString());
-        if (!dir.exists())
-            dir.mkdirs();
+        if (!dir.exists() && !dir.mkdirs()) {
+            return null;
+        }
         return new File(dir, paths[len - 1]);
     }
 
@@ -300,8 +301,24 @@ public class FileUtil {
     }
 
 
+    public static boolean checkOrCreateDirectory(File dir) {
+        if (dir.exists()) {
+            if (!dir.isDirectory()) {
+                if (!dir.delete()) {
+                    return false;
+                } else {
+                    return dir.mkdirs();
+                }
+            }
+        } else {
+            return dir.mkdirs();
+        }
+        return true;
+    }
+
     /**
      * 检查文件路径
+     *
      * @param originalPath
      * @return
      */
