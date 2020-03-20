@@ -223,12 +223,10 @@ public class NetworkUtil {
      * @return
      */
     public static String int2Ip(long ipInt) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(ipInt & 0xFF).append(".");
-        sb.append((ipInt >> 8) & 0xFF).append(".");
-        sb.append((ipInt >> 16) & 0xFF).append(".");
-        sb.append((ipInt >> 24) & 0xFF);
-        return sb.toString();
+        return ((ipInt >> 24) & 0xFF) + "." +
+                ((ipInt >> 16) & 0xFF) + "." +
+                ((ipInt >> 8) & 0xFF) + "." +
+                (ipInt & 0xFF);
     }
 
     /**
