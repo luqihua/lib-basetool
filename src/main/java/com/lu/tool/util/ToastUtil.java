@@ -1,9 +1,12 @@
 package com.lu.tool.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.DrawableRes;
+
+import androidx.annotation.DrawableRes;
+
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +29,10 @@ public class ToastUtil {
     }
 
 
+    @SuppressLint("ShowToast")
     public static void init(Context context) {
         mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
+        mToast.setGravity(Gravity.CENTER, 0, 0);
     }
 
     /**

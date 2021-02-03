@@ -1,5 +1,7 @@
 package com.lu.tool.util;
 
+import android.text.TextUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,10 +43,12 @@ public class RegularUtil {
 
     /**
      * 是否是ip
+     *
      * @param address
      * @return
      */
     public static boolean isIPAddress(String address) {
+        if (TextUtils.isEmpty(address)) return false;
         String reg = "((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}";
         return Pattern.compile(reg).matcher(address).matches();
     }
@@ -62,6 +66,7 @@ public class RegularUtil {
 
     /**
      * 是否是 100 的整数倍
+     *
      * @param str
      */
     public static boolean isMultipleOf100(String str) {

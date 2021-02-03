@@ -2,14 +2,11 @@ package com.lu.tool.ui.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.KeyEvent;
 
 import com.lu.tool.ui.IUIInterface;
 import com.lu.tool.widget.SlideBackLayout;
-
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 
 /**
  * @author lqh
@@ -17,10 +14,7 @@ import butterknife.Unbinder;
  * @description
  */
 public abstract class BaseActivity extends AppCompatActivity implements  IUIInterface {
-    private Unbinder unbinder;
     protected Activity mCurrentActivity;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,21 +25,12 @@ public abstract class BaseActivity extends AppCompatActivity implements  IUIInte
         this.mCurrentActivity = this;
         setContentView(getLayoutId());
         //ButterKnife
-        unbinder = ButterKnife.bind(this);
         //处理上个界面传递的参数，处理避免空指针
         Bundle bundle = getIntent().getExtras();
         handlerIntent(bundle == null ? new Bundle() : bundle);
         initView();
         bindListener();
         bindData();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (unbinder != null) {
-            unbinder.unbind();
-        }
     }
 
     @Override

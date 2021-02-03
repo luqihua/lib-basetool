@@ -1,6 +1,6 @@
 package com.lu.tool.app.update;
 
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 /**
  * 版本信息

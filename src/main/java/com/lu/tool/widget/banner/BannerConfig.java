@@ -1,6 +1,6 @@
 package com.lu.tool.widget.banner;
 
-import android.support.v4.view.ViewPager;
+import androidx.viewpager.widget.ViewPager;
 import android.view.Gravity;
 
 import com.lu.tool.widget.banner.indicator.IIndicator;
